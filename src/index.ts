@@ -1,5 +1,4 @@
-import apiRouter from './router';
-import { Env } from './types/env';
+import apiRouter from './v1handler';
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -7,11 +6,12 @@ export default {
 		if (path === '/health') {
 			return new Response('OK', { status: 200 });
 		}
-		
+
+		// V1 API
 		if (path.startsWith('/api/v1')) {
 			return apiRouter(request, env, ctx);
 		}
 
 		return new Response('Not Found.', { status: 404 });
-	}
+	},
 };

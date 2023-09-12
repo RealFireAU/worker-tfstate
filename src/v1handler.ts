@@ -1,8 +1,6 @@
 // Version: 1.0
 // Description: Router for the Terraform State API
 // Web Path: /api/v1/*
-
-import { Env } from './types/env';
 import { RouterExtended } from './types/Router';
 import { Router, RouterType } from 'itty-router';
 
@@ -20,30 +18,29 @@ const PATH_PREFIX = '/api/v1/';
 router.get('*', async (request) => {
 	const path = new URL(request.url).pathname.replace(PATH_PREFIX, '');
 	return await getState(path);
-  });
-  
-  router.post('*', async (request) => {
+});
+
+router.post('*', async (request) => {
 	const path = new URL(request.url).pathname.replace(PATH_PREFIX, '');
 	return await setState(path, await request.text());
-  });
-  
-  router.delete('*', async (request) => {
+});
+
+router.delete('*', async (request) => {
 	const path = new URL(request.url).pathname.replace(PATH_PREFIX, '');
 	return await deleteState(path);
-  });
-  
-  router.lock('*', async (request) => {
+});
+
+router.lock('*', async (request) => {
 	const path = new URL(request.url).pathname.replace(PATH_PREFIX, '');
 	return await lockState(path, await request.text());
-  })
-  
-  router.unlock('*', async (request) => {
+});
+
+router.unlock('*', async (request) => {
 	const path = new URL(request.url).pathname.replace(PATH_PREFIX, '');
 	return await unlockState(path);
-  });
+});
 
 router.all('*', () => new Response('Not Found.', { status: 404 }));
-
 
 async function handleRequest(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 	STATE_NAMESPACE = env.tfstate;
@@ -57,33 +54,30 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
 		}
 		const res = await router.handle(request, env, ctx);
 		return res;
-	} catch (err: any) { 
+	} catch (err: any) {
 		console.error(err.stack || err);
 		return new Response(err.stack || err, { status: 500 });
 	}
 }
 
-export default handleRequest;
-
-
 async function getState(path: string) {
 	const state = await STATE_NAMESPACE.get(STATE_KEY_PREFIX + path);
 	if (!state) {
-	  return new Response('', {
-		status: 404,
-		headers: {
-		  'Cache-Control': 'no-store',
-		},
-	  });
+		return new Response('', {
+			status: 404,
+			headers: {
+				'Cache-Control': 'no-store',
+			},
+		});
 	}
-  
+
 	return new Response(state || '', {
-	  headers: {
-		'Content-type': 'application/json',
-		'Cache-Control': 'no-store',
-	  },
+		headers: {
+			'Content-type': 'application/json',
+			'Cache-Control': 'no-store',
+		},
 	});
-  }
+}
 async function setState(path: string, body: string) {
 	await STATE_NAMESPACE.put(STATE_KEY_PREFIX + path, body);
 	return new Response(body || '', {
@@ -123,12 +117,14 @@ async function lockState(path: string, body: string) {
 		},
 	});
 }
-  
-  async function unlockState(path: string) {
+
+async function unlockState(path: string) {
 	await STATE_NAMESPACE.delete(LOCK_KEY_PREFIX + path);
 	return new Response('', {
-	  headers: {
-		'Cache-Control': 'no-store',
-	  },
+		headers: {
+			'Cache-Control': 'no-store',
+		},
 	});
-  }
+}
+
+export default handleRequest;
