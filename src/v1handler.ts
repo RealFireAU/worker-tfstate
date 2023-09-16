@@ -79,7 +79,7 @@ async function getState(path: string) {
 	});
 }
 async function setState(path: string, body: string) {
-	await STATE_NAMESPACE.put(STATE_KEY_PREFIX + path, body);
+	await STATE_NAMESPACE.put(STATE_KEY_PREFIX + path, body, {expirationTtl: 3600});
 	return new Response(body || '', {
 		status: 200,
 		headers: {
