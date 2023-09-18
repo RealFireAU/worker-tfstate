@@ -120,6 +120,8 @@ async function lockState(path: string, body: string) {
 
 async function unlockState(path: string) {
 	await STATE_NAMESPACE.delete(LOCK_KEY_PREFIX + path);
+	// This is a workaround for propagation delays in the KV store (Globa replication is not instant)
+	await STATE_NAMESPACE.put(STATE_KEY_PREFIX + path, '', {expirationTtl: 60});
 	return new Response('', {
 		headers: {
 			'Cache-Control': 'no-store',
