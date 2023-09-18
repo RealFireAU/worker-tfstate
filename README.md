@@ -6,7 +6,7 @@ This project is a CloudFlare Worker that stores the state of a Terraform workspa
 ```terraform
 terraform {
   backend "http" {
-    address = "https://worker.example.com"
+    address = "https://worker.example.com/api/v1/example"
   }
 }
 ```
